@@ -1,0 +1,120 @@
+#include <iostream>
+#include <vector>
+#include <cstdlib>
+#include <iostream>
+#include <fstream>
+#include "grafo.h"
+#include <assert.h>
+
+using namespace std;
+
+typedef float TipoPeso;
+
+float colorBack(Grafo & ,vector<unsigned> & );
+void colorBackRec(unsigned ,Grafo & ,float ,float & ,vector<unsigned> & ,vector <unsigned> & );
+void calculoCoste(ostream &);
+
+
+int main()
+{
+    ofstream back;
+    back.open("back.dat");
+    calculoCoste(back);//guardamos los valores de los accesos en voraz.dat
+    back.close();    
+}
+
+
+
+
+/**
+ * @param i
+ * @param grafo 
+ * @param ncolor
+ * @param mejorNcolor 
+ * @param v colores de la solucion actual
+ * @param colores colores para la mejor solucion
+ */
+void colorBackRec(unsigned i,Grafo & grafo,float ncolor,float & mejorNcolor,vector<unsigned> & v,vector <unsigned> & colores)
+{
+    unsigned nuevo_ncolor;
+    vector<bool> aux(grafo.size(),false);
+    
+    assert(i <= grafo.size() );
+    assert(ncolor <= grafo.size() );
+    assert(v.size() == grafo.size() );
+    
+    if(i == grafo.size() )
+    {
+        if(ncolor < mejorNcolor)
+        {
+            
+            colores=v;
+            //mejorNcolor = ncolor;
+        }
+    }
+    else
+    {
+        //cjto colores usados
+        
+        
+        for(unsigned j = 0;j<grafo.size();j++)
+        {
+            if (grafo(i,j));
+                aux[v[j]] = true;
+        }
+        
+        //poda de forma explicicta
+        
+        for(unsigned j = 1;j< grafo.size();j++)
+        {
+            if(! aux[j] && j<= mejorNcolor)//factible y poda
+            {
+                if ( j > ncolor)
+                    nuevo_ncolor=j;
+                else
+                    nuevo_ncolor=ncolor;
+                    v[i]=j;
+                    colorBackRec(i+1,grafo,nuevo_ncolor,mejorNcolor,v,colores);
+            }
+        
+        }
+        v.at(i)=0;//deshacemos
+    }
+    
+}
+/**
+ * llamada inicial a colorBackRec
+ * 
+ * @param grafo Matriz de adyacencia
+ * @param colores colores de la mejor solucion
+ * @return mejorNcolor numerode colores de la mejor solucion
+ */
+
+float colorBack(Grafo & grafo,vector<unsigned> & colores)
+{
+    vector<unsigned> v(grafo.size(),0);
+    float mejorNcolor=grafo.size()+1;
+    colorBackRec(0,grafo,0,mejorNcolor,v,colores);
+    return mejorNcolor;
+}
+    
+            
+            
+void calculoCoste(ostream & file)
+{
+    for(unsigned j=0;j<=11;j++)
+    {
+        //modificar
+        Grafo grafo(j);
+        vector <unsigned> colores(grafo.size(),0);
+        
+
+        //modificar
+        grafo.creaGrafoND();
+        
+        //modificar
+        colorBack(grafo,colores);
+        file << j <<" "<< grafo.getAccesos() << endl;
+    }
+    
+}
